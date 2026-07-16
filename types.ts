@@ -62,6 +62,8 @@ export interface DataTableHandle {
   selectAll: () => void;
   /** 清空可选行的选中（禁用行的已选状态保留） */
   clearSelection: () => void;
+  /** 纵向滚动回顶部（数据变短时滚动偏移可能越界留白，切筛选等场景应调用） */
+  scrollToTop: () => void;
 }
 
 export interface SortParams {

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Added `DataTableHandle.scrollToTop()` for resetting vertical position after filtering to a shorter data set.
+
+### Fixed
+
+- Kept the injected selection column after existing left-fixed columns or before existing right-fixed columns.
+- Remeasured adaptive columns when row-selection mode or its merged host column changes.
+
 ## 1.0.2 - 2026-07-16
 
 ### Added

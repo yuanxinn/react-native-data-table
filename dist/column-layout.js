@@ -42,8 +42,13 @@ function mergeColumns(columns, selection) {
         align: 'center',
         fixed: position === 'last' ? 'right' : 'left',
     };
-    const base = position === 'last' ? [...columns, selCol] : [selCol, ...columns];
-    return { columns: reorderFixed(base), mergeIntoDataIndex: null };
+    const base = reorderFixed(columns);
+    const insertionIndex = base.findIndex((column) => position === 'first' ? column.fixed !== 'left' : column.fixed === 'right');
+    const index = insertionIndex === -1 ? base.length : insertionIndex;
+    return {
+        columns: [...base.slice(0, index), selCol, ...base.slice(index)],
+        mergeIntoDataIndex: null,
+    };
 }
 /** 批次测绘宽度并入累计表：同列取最大值，返回新对象（不改入参） */
 function mergeMaxWidths(base, batch) {

@@ -140,6 +140,7 @@ const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
 tableRef.current?.selectAll();
 tableRef.current?.clearSelection();
+tableRef.current?.scrollToTop();
 ```
 
 ### 展开行
@@ -255,9 +256,9 @@ tableRef.current?.clearSelection();
 | `stripeColors` | `[string, string]` | `[theme.rowBg, theme.headerBg]` | 偶数/奇数行背景 |
 | `highlightOnRowPress` | `boolean` | `false` | 按下行时高亮 |
 | `highlightColor` | `string` | `theme.primaryLight` | 行按压高亮色 |
-| `rowSelection` | `RowSelectionConfig<T>` | — | 受控行选择配置 |
+| `rowSelection` | `RowSelectionConfig<T>` | — | 受控行选择配置；开关选择模式或切换合并宿主列时会自动原地重测列宽 |
 | `stickyHeader` | `boolean` | `true` | 表头吸顶开关 |
-| `ref` | `Ref<DataTableHandle>` | — | `selectAll()` / `clearSelection()` 命令式句柄 |
+| `ref` | `Ref<DataTableHandle>` | — | `selectAll()` / `clearSelection()` / `scrollToTop()` 命令式句柄 |
 | `onSort` | `(params: SortParams) => void` | — | 排序状态变化回调 |
 | `currentSort` | `SortParams` | — | 当前受控排序状态 |
 | `renderSortIcon` | `(order) => ReactNode` | — | 全局自定义排序图标，三态宽度应保持一致 |
@@ -369,6 +370,7 @@ tableRef.current?.clearSelection();
 |---|---|
 | `selectAll` | 全选所有未禁用行；已选中的禁用行保持不变 |
 | `clearSelection` | 清空可选行；禁用行的已选状态保留 |
+| `scrollToTop` | 纵向滚动回顶部；适用于筛选后数据变短导致滚动偏移越界的场景 |
 
 `SortParams`：
 

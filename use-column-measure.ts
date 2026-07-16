@@ -30,7 +30,7 @@ export interface GhostBatch<T> {
 /**
  * 幽灵测绘全链路状态机：
  * - 首测通道（pendingGhost）：新数据先进幽灵区，测绘完成后按批放行进入 FlashList；
- * - 原地重测通道（remeasureGhost）：测绘签名（remeasureKey + 自适应列集合）变化时
+ * - 原地重测通道（remeasureGhost）：测绘签名（remeasureKey + 选择状态 + 自适应列集合）变化时
  *   快照全量数据分批重测，完成后一次性替换列宽，行不下屏；
  * - 子表宽度并入（handleSubMeasured）：展开行子表测宽后并入 measuredWidths 撑宽自适应列，
  *   subMeasuredKeys 门控子表测完再上屏，列宽体系重算时整体作废。
@@ -40,12 +40,18 @@ export function useColumnMeasure<T>({
   keyExtractor,
   autoColumns,
   remeasureKey,
+  selectionSignature,
 }: {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
   /** 仅需自适应测绘的列（未配置 width 的列），附带列缓存 key */
   autoColumns: { col: TableColumn<T>; key: string }[];
   remeasureKey?: string | number;
+  /**
+   * 选择状态签名（开关 + 合并宿主列）。合并模式的选择框显隐不改变列 key，
+   * 必须经此段并入测绘签名，批量开关切换才会触发原地重测（宿主列宽含/不含选择框）。
+   */
+  selectionSignature?: string;
 }) {
   const needsMeasure = autoColumns.length > 0;
 
@@ -98,11 +104,12 @@ export function useColumnMeasure<T>({
     }
   }
 
-  // ② 测绘签名 = remeasureKey + 自适应列集合。签名变化（字体档位调整、列增删/顺序变动）时：
+  // ② 测绘签名 = remeasureKey + 选择状态 + 自适应列集合。签名变化（字体档位调整、
+  //    列增删/顺序变动、选择框显隐/合并宿主变更）时：
   //    已有行上屏则走原地重测通道——行保持旧列宽显示，快照全量数据分批离屏重测，
   //    完成后一次性替换列宽（不清 measuredKeys，行不下屏、纵向滚动不回顶）；
   //    尚无行上屏则直接作废缓存，走首次测绘流程。置于 ① 之后：同渲染同时触发时以本段为准。
-  const autoKeysSignature = `${remeasureKey ?? ''}§${autoColumns.map((c) => c.key).join('|')}`;
+  const autoKeysSignature = `${remeasureKey ?? ''}§${selectionSignature ?? ''}§${autoColumns.map((c) => c.key).join('|')}`;
   const [prevAutoKeysSignature, setPrevAutoKeysSignature] = useState(autoKeysSignature);
   if (prevAutoKeysSignature !== autoKeysSignature) {
     setPrevAutoKeysSignature(autoKeysSignature);

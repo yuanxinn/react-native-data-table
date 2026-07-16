@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import type { DataTableHandle, RowSelectionConfig } from './types';
+import type { RowSelectionConfig } from './types';
 
 /** 遍历未被 getCheckboxProps 禁用的行，按 data 顺序回吐其 key（全选范围） */
 function selectableKeysOf<T>(
@@ -36,20 +36,18 @@ function emitSelection<T>(
 }
 
 /**
- * 行选择状态：单行切换、表头全选/反选、命令式 selectAll / clearSelection。
+ * 行选择状态：单行切换、表头全选/反选、selectAll / clearSelection
+ * （命令式句柄由 data-table 统一组装）。
  * 切换回调必须恒稳定（TableRow memo 依赖），最新数据经 selectionStateRef 透传。
  */
 export function useRowSelection<T>({
   data,
   keyExtractor,
   rowSelection,
-  handleRef,
 }: {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
   rowSelection?: RowSelectionConfig<T>;
-  /** 命令式方法句柄（selectAll / clearSelection） */
-  handleRef?: React.Ref<DataTableHandle>;
 }) {
   const selectedRowKeys = rowSelection?.selectedRowKeys;
   const selectedSet = useMemo(() => new Set(selectedRowKeys ?? []), [selectedRowKeys]);
@@ -93,31 +91,28 @@ export function useRowSelection<T>({
     emitSelection(data, keyExtractor, rowSelection, next);
   }, [rowSelection, allChecked, selectableKeys, data, keyExtractor]);
 
-  // ---- 命令式方法（ref）：经 selectionStateRef 读最新数据，回调恒稳定 ----
-  React.useImperativeHandle(
-    handleRef,
-    (): DataTableHandle => ({
-      selectAll: () => {
-        const { data: d, keyExtractor: ke, rowSelection: rs } = selectionStateRef.current;
-        if (!rs) return;
-        // 全选未禁用行，已选中的禁用行保持原状
-        const next = new Set(rs.selectedRowKeys);
-        selectableKeysOf(d, ke, rs).forEach((k) => next.add(k));
-        emitSelection(d, ke, rs, next);
-      },
-      clearSelection: () => {
-        const { data: d, keyExtractor: ke, rowSelection: rs } = selectionStateRef.current;
-        if (!rs) return;
-        // 只清可选行，禁用行的已选状态保留
-        const next = new Set(rs.selectedRowKeys);
-        selectableKeysOf(d, ke, rs).forEach((k) => next.delete(k));
-        emitSelection(d, ke, rs, next);
-      },
-    }),
-    [],
-  );
+  // ---- 命令式方法：经 selectionStateRef 读最新数据，回调恒稳定（由 data-table 装进 ref 句柄） ----
+  const selectAll = useCallback(() => {
+    const { data: d, keyExtractor: ke, rowSelection: rs } = selectionStateRef.current;
+    if (!rs) return;
+    // 全选未禁用行，已选中的禁用行保持原状
+    const next = new Set(rs.selectedRowKeys);
+    selectableKeysOf(d, ke, rs).forEach((k) => next.add(k));
+    emitSelection(d, ke, rs, next);
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    const { data: d, keyExtractor: ke, rowSelection: rs } = selectionStateRef.current;
+    if (!rs) return;
+    // 只清可选行，禁用行的已选状态保留
+    const next = new Set(rs.selectedRowKeys);
+    selectableKeysOf(d, ke, rs).forEach((k) => next.delete(k));
+    emitSelection(d, ke, rs, next);
+  }, []);
 
   return {
+    selectAll,
+    clearSelection,
     selectedSet,
     allChecked,
     someChecked,

@@ -138,6 +138,7 @@ const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
 tableRef.current?.selectAll();
 tableRef.current?.clearSelection();
+tableRef.current?.scrollToTop();
 ```
 
 ### Expandable rows
@@ -253,9 +254,9 @@ You can also import `DEFAULT_DATA_TABLE_THEME` as a complete baseline.
 | `stripeColors` | `[string, string]` | `[theme.rowBg, theme.headerBg]` | Even and odd row backgrounds |
 | `highlightOnRowPress` | `boolean` | `false` | Highlights a row while pressed |
 | `highlightColor` | `string` | `theme.primaryLight` | Row press highlight color |
-| `rowSelection` | `RowSelectionConfig<T>` | — | Controlled row-selection configuration |
+| `rowSelection` | `RowSelectionConfig<T>` | — | Controlled row-selection configuration; toggling selection mode or changing the merged host column remeasures widths in place |
 | `stickyHeader` | `boolean` | `true` | Enables the sticky header |
-| `ref` | `Ref<DataTableHandle>` | — | Imperative `selectAll()` / `clearSelection()` handle |
+| `ref` | `Ref<DataTableHandle>` | — | Imperative `selectAll()` / `clearSelection()` / `scrollToTop()` handle |
 | `onSort` | `(params: SortParams) => void` | — | Called when the requested sort state changes |
 | `currentSort` | `SortParams` | — | Current controlled sort state |
 | `renderSortIcon` | `(order) => ReactNode` | — | Globally customizes the sort icon; keep all three states the same width |
@@ -367,6 +368,7 @@ Style precedence:
 |---|---|
 | `selectAll` | Selects all enabled rows while preserving selected disabled rows |
 | `clearSelection` | Clears enabled rows while preserving the selected state of disabled rows |
+| `scrollToTop` | Scrolls vertically to the top; useful after filtering to a shorter data set |
 
 `SortParams`:
 

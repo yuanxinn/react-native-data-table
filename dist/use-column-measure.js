@@ -8,12 +8,12 @@ const MEASURE_BATCH_SIZE = 200;
 /**
  * 幽灵测绘全链路状态机：
  * - 首测通道（pendingGhost）：新数据先进幽灵区，测绘完成后按批放行进入 FlashList；
- * - 原地重测通道（remeasureGhost）：测绘签名（remeasureKey + 自适应列集合）变化时
+ * - 原地重测通道（remeasureGhost）：测绘签名（remeasureKey + 选择状态 + 自适应列集合）变化时
  *   快照全量数据分批重测，完成后一次性替换列宽，行不下屏；
  * - 子表宽度并入（handleSubMeasured）：展开行子表测宽后并入 measuredWidths 撑宽自适应列，
  *   subMeasuredKeys 门控子表测完再上屏，列宽体系重算时整体作废。
  */
-function useColumnMeasure({ data, keyExtractor, autoColumns, remeasureKey, }) {
+function useColumnMeasure({ data, keyExtractor, autoColumns, remeasureKey, selectionSignature, }) {
     const needsMeasure = autoColumns.length > 0;
     // __DEV__ 下检测重复行 key：重复 key 会让幽灵测绘门控永远测不满（onLayout 按 cellId 去重，
     // expected 凑不齐 → 行永远不上屏且无任何报错），FlashList 复用也会错乱。仅数据变化时检查一次。
@@ -64,11 +64,12 @@ function useColumnMeasure({ data, keyExtractor, autoColumns, remeasureKey, }) {
                 setMeasuredKeys(next);
         }
     }
-    // ② 测绘签名 = remeasureKey + 自适应列集合。签名变化（字体档位调整、列增删/顺序变动）时：
+    // ② 测绘签名 = remeasureKey + 选择状态 + 自适应列集合。签名变化（字体档位调整、
+    //    列增删/顺序变动、选择框显隐/合并宿主变更）时：
     //    已有行上屏则走原地重测通道——行保持旧列宽显示，快照全量数据分批离屏重测，
     //    完成后一次性替换列宽（不清 measuredKeys，行不下屏、纵向滚动不回顶）；
     //    尚无行上屏则直接作废缓存，走首次测绘流程。置于 ① 之后：同渲染同时触发时以本段为准。
-    const autoKeysSignature = `${remeasureKey !== null && remeasureKey !== void 0 ? remeasureKey : ''}§${autoColumns.map((c) => c.key).join('|')}`;
+    const autoKeysSignature = `${remeasureKey !== null && remeasureKey !== void 0 ? remeasureKey : ''}§${selectionSignature !== null && selectionSignature !== void 0 ? selectionSignature : ''}§${autoColumns.map((c) => c.key).join('|')}`;
     const [prevAutoKeysSignature, setPrevAutoKeysSignature] = (0, react_1.useState)(autoKeysSignature);
     if (prevAutoKeysSignature !== autoKeysSignature) {
         setPrevAutoKeysSignature(autoKeysSignature);

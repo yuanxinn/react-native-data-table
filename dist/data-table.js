@@ -81,7 +81,8 @@ function DataTable({ data, columns, keyExtractor, remeasureKey, height, maxHeigh
         setContainerWidth(e.nativeEvent.layout.width);
     }, []);
     // ---- 列装配：按行选择诉求注入/合并选择框，左固定归位最前、右固定归位最后 ----
-    // 选择模式开关 = rowSelection 传/不传，切换会改变列下标 → 测绘签名变化 → 自动走原地重测
+    // 选择模式开关 = rowSelection 传/不传，切换经 selectionSignature 进测绘签名 → 自动走原地重测
+    // （独立选择列还会改变列下标；合并模式列 key 不变，全靠签名段触发）
     const hasSelection = rowSelection != null;
     const selectionPosition = (_a = rowSelection === null || rowSelection === void 0 ? void 0 : rowSelection.position) !== null && _a !== void 0 ? _a : 'first';
     const mergeIntoDataIndex = rowSelection === null || rowSelection === void 0 ? void 0 : rowSelection.mergeIntoDataIndex;
@@ -90,7 +91,9 @@ function DataTable({ data, columns, keyExtractor, remeasureKey, height, maxHeigh
     const autoColumns = (0, react_1.useMemo)(() => mergedColumns
         .map((col, i) => ({ col, key: (0, cell_1.columnKey)(col, i) }))
         .filter(({ col }) => col.width == null), [mergedColumns]);
-    const { measuredWidths, displayData, hasPending, isRemeasuring, pendingGhost, remeasureGhost, subMeasuredKeys, handleSubMeasured, invalidateSubMeasured, } = (0, use_column_measure_1.useColumnMeasure)({ data, keyExtractor, autoColumns, remeasureKey });
+    // 选择状态签名：合并模式的选择框显隐不改列 key，须显式并入测绘签名触发原地重测
+    const selectionSignature = hasSelection ? `sel:${mergeHostDataIndex !== null && mergeHostDataIndex !== void 0 ? mergeHostDataIndex : '__column__'}` : 'none';
+    const { measuredWidths, displayData, hasPending, isRemeasuring, pendingGhost, remeasureGhost, subMeasuredKeys, handleSubMeasured, invalidateSubMeasured, } = (0, use_column_measure_1.useColumnMeasure)({ data, keyExtractor, autoColumns, remeasureKey, selectionSignature });
     // ---- 列宽解析（主体只用明确 width 布局，绝不使用 flex 伸展） ----
     const { resolved, totalWidth } = (0, react_1.useMemo)(() => (0, column_layout_1.resolveColumnLayout)(mergedColumns, measuredWidths, containerWidth, mergeHostDataIndex), [mergedColumns, measuredWidths, containerWidth, mergeHostDataIndex]);
     // 右固定列钉边所需的最大横向滚动距离；容器未测出前按 0 处理避免首帧漂移
@@ -100,7 +103,14 @@ function DataTable({ data, columns, keyExtractor, remeasureKey, height, maxHeigh
     // ---- 边框：解析为行/单元格/外框三类样式 ----
     const borderStyles = (0, react_1.useMemo)(() => (0, border_1.resolveBorder)(border, mergedTheme.line), [border, mergedTheme.line]);
     // ---- 行选择（状态与回调见 use-row-selection.ts） ----
-    const { selectedSet, allChecked, someChecked, selectableCount, handleToggleSelect, handleToggleAll, } = (0, use_row_selection_1.useRowSelection)({ data, keyExtractor, rowSelection, handleRef: ref });
+    const { selectAll, clearSelection, selectedSet, allChecked, someChecked, selectableCount, handleToggleSelect, handleToggleAll, } = (0, use_row_selection_1.useRowSelection)({ data, keyExtractor, rowSelection });
+    // ---- 命令式句柄：行选择方法 + 纵向回顶（数据变短时滚动偏移可能越界留白，切筛选场景用） ----
+    const listRef = (0, react_1.useRef)(null);
+    react_1.default.useImperativeHandle(ref, () => ({
+        selectAll,
+        clearSelection,
+        scrollToTop: () => { var _a; return (_a = listRef.current) === null || _a === void 0 ? void 0 : _a.scrollToOffset({ offset: 0, animated: false }); },
+    }), [selectAll, clearSelection]);
     // ---- 排序：受控轮转 null → ascend → descend → null ----
     const handleSortPress = (0, react_1.useCallback)((dataIndex) => {
         if (!onSort)
@@ -271,7 +281,7 @@ function DataTable({ data, columns, keyExtractor, remeasureKey, height, maxHeigh
         : maxHeight != null
             ? { maxHeight, flexGrow: 1, flexShrink: 1 }
             : { flex: 1 };
-    const tableList = ((0, jsx_runtime_1.jsx)(flash_list_1.FlashList, { data: listData, renderItem: renderItem, keyExtractor: listKeyExtractor, getItemType: getItemType, stickyHeaderIndices: stickyHeader ? [0] : undefined, extraData: extraData, refreshing: refreshing, onRefresh: onRefresh, onEndReached: handleEndReached, onEndReachedThreshold: onEndReachedThreshold, nestedScrollEnabled: !IS_WEB, ListHeaderComponent: IS_WEB ? ListHeaderComponent : nativeListHeader, ListFooterComponent: IS_WEB ? listFooter : nativeListFooter }));
+    const tableList = ((0, jsx_runtime_1.jsx)(flash_list_1.FlashList, { ref: listRef, data: listData, renderItem: renderItem, keyExtractor: listKeyExtractor, getItemType: getItemType, stickyHeaderIndices: stickyHeader ? [0] : undefined, extraData: extraData, refreshing: refreshing, onRefresh: onRefresh, onEndReached: handleEndReached, onEndReachedThreshold: onEndReachedThreshold, nestedScrollEnabled: !IS_WEB, ListHeaderComponent: IS_WEB ? ListHeaderComponent : nativeListHeader, ListFooterComponent: IS_WEB ? listFooter : nativeListFooter }));
     return ((0, jsx_runtime_1.jsx)(theme_1.DataTableThemeProvider, { value: mergedTheme, children: (0, jsx_runtime_1.jsxs)(react_native_1.View, { style: [sizeStyle, styles.container, borderStyles.outer, style], onLayout: handleContainerLayout, children: [IS_WEB ? (tableList) : ((0, jsx_runtime_1.jsx)(react_native_1.Animated.ScrollView, { style: styles.nativeHorizontalScroller, contentContainerStyle: styles.nativeHorizontalContent, horizontal: true, bounces: false, directionalLockEnabled: true, nestedScrollEnabled: true, showsHorizontalScrollIndicator: false, scrollEventThrottle: 16, onScroll: handleNativeHorizontalScroll, children: (0, jsx_runtime_1.jsx)(react_native_1.View, { style: [styles.nativeTableContent, { width: totalWidth }], children: tableList }) })), pendingGhost ? ((0, jsx_runtime_1.jsx)(ghost_measurer_1.GhostMeasurer, { entries: pendingGhost.entries, onMeasured: pendingGhost.onMeasured, ...ghostShared }, pendingGhost.key)) : null, remeasureGhost ? ((0, jsx_runtime_1.jsx)(ghost_measurer_1.GhostMeasurer, { entries: remeasureGhost.entries, onMeasured: remeasureGhost.onMeasured, ...ghostShared }, remeasureGhost.key)) : null] }) }));
 }
 const styles = react_native_1.StyleSheet.create({

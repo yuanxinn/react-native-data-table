@@ -1,4 +1,4 @@
-import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
+import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -18,6 +18,7 @@ import { HeaderRow } from './header-row';
 import { TableRow } from './table-row';
 import { DataTableThemeProvider, resolveTheme } from './theme';
 import type {
+  DataTableHandle,
   DataTableProps,
   SortParams,
   SubTableSpec,
@@ -117,7 +118,8 @@ export function DataTable<T, D = unknown>({
   }, []);
 
   // ---- 列装配：按行选择诉求注入/合并选择框，左固定归位最前、右固定归位最后 ----
-  // 选择模式开关 = rowSelection 传/不传，切换会改变列下标 → 测绘签名变化 → 自动走原地重测
+  // 选择模式开关 = rowSelection 传/不传，切换经 selectionSignature 进测绘签名 → 自动走原地重测
+  // （独立选择列还会改变列下标；合并模式列 key 不变，全靠签名段触发）
   const hasSelection = rowSelection != null;
   const selectionPosition = rowSelection?.position ?? 'first';
   const mergeIntoDataIndex = rowSelection?.mergeIntoDataIndex;
@@ -139,6 +141,9 @@ export function DataTable<T, D = unknown>({
     [mergedColumns],
   );
 
+  // 选择状态签名：合并模式的选择框显隐不改列 key，须显式并入测绘签名触发原地重测
+  const selectionSignature = hasSelection ? `sel:${mergeHostDataIndex ?? '__column__'}` : 'none';
+
   const {
     measuredWidths,
     displayData,
@@ -149,7 +154,7 @@ export function DataTable<T, D = unknown>({
     subMeasuredKeys,
     handleSubMeasured,
     invalidateSubMeasured,
-  } = useColumnMeasure({ data, keyExtractor, autoColumns, remeasureKey });
+  } = useColumnMeasure({ data, keyExtractor, autoColumns, remeasureKey, selectionSignature });
 
   // ---- 列宽解析（主体只用明确 width 布局，绝不使用 flex 伸展） ----
   const { resolved, totalWidth } = useMemo(
@@ -171,13 +176,27 @@ export function DataTable<T, D = unknown>({
 
   // ---- 行选择（状态与回调见 use-row-selection.ts） ----
   const {
+    selectAll,
+    clearSelection,
     selectedSet,
     allChecked,
     someChecked,
     selectableCount,
     handleToggleSelect,
     handleToggleAll,
-  } = useRowSelection({ data, keyExtractor, rowSelection, handleRef: ref });
+  } = useRowSelection({ data, keyExtractor, rowSelection });
+
+  // ---- 命令式句柄：行选择方法 + 纵向回顶（数据变短时滚动偏移可能越界留白，切筛选场景用） ----
+  const listRef = useRef<FlashListRef<ListItem<T>>>(null);
+  React.useImperativeHandle(
+    ref,
+    (): DataTableHandle => ({
+      selectAll,
+      clearSelection,
+      scrollToTop: () => listRef.current?.scrollToOffset({ offset: 0, animated: false }),
+    }),
+    [selectAll, clearSelection],
+  );
 
   // ---- 排序：受控轮转 null → ascend → descend → null ----
   const handleSortPress = useCallback(
@@ -482,6 +501,7 @@ export function DataTable<T, D = unknown>({
 
   const tableList = (
     <FlashList
+      ref={listRef}
       data={listData}
       renderItem={renderItem}
       keyExtractor={listKeyExtractor}
