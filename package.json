@@ -1,0 +1,46 @@
+{
+  "name": "@bestcoder/react-native-data-table",
+  "version": "1.0.1",
+  "description": "A high-performance cross-platform data table for React Native and Expo.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "data-table",
+    "flash-list",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "bestcoder",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@shopify/flash-list": ">=2.0.0 <3",
+    "react": ">=19.2.3 <20",
+    "react-native": ">=0.86.0 <0.87"
+  },
+  "devDependencies": {
+    "@shopify/flash-list": "2.0.2",
+    "@types/react": "~19.2.2",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~57.0.0",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}
