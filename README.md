@@ -1,5 +1,7 @@
 # @bestcoder/react-native-data-table
 
+简体中文 | [English](./README.en.md)
+
 [![npm version](https://img.shields.io/npm/v/%40bestcoder%2Freact-native-data-table.svg)](https://www.npmjs.com/package/@bestcoder/react-native-data-table)
 [![license](https://img.shields.io/npm/l/%40bestcoder%2Freact-native-data-table.svg)](https://www.npmjs.com/package/@bestcoder/react-native-data-table)
 [![npm downloads](https://img.shields.io/npm/dm/%40bestcoder%2Freact-native-data-table.svg)](https://www.npmjs.com/package/@bestcoder/react-native-data-table)
@@ -405,4 +407,4 @@ export type {
 
 ## License
 
-MIT © bestcoder。标准许可证文本已包含在 npm 包的 `LICENSE` 文件中。
+MIT © bestcoder。标准许可证文本已包含在 npm 包的 `LICENSE` 文件中；版本变化参见 [CHANGELOG.md](./CHANGELOG.md)。

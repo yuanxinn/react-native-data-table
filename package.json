@@ -1,12 +1,14 @@
 {
   "name": "@bestcoder/react-native-data-table",
-  "version": "1.0.1",
+  "version": "1.0.1001",
   "description": "A high-performance cross-platform data table for React Native and Expo.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
     "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
@@ -23,6 +25,14 @@
   ],
   "license": "MIT",
   "author": "bestcoder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuanxinn/react-native-data-table.git"
+  },
+  "homepage": "https://github.com/yuanxinn/react-native-data-table#readme",
+  "bugs": {
+    "url": "https://github.com/yuanxinn/react-native-data-table/issues"
+  },
   "publishConfig": {
     "access": "public"
   },
