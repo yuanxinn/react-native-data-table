@@ -29,7 +29,7 @@ jobs:
           node -e "const version = require('./package.json').version; const expected = 'v' + version; const actual = process.env.GITHUB_REF_NAME; if (actual !== expected) { console.error('Release tag ' + actual + ' does not match package version ' + expected); process.exit(1); }"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --ignore-scripts
 
       - name: Lint
         run: npm run lint
