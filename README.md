@@ -30,7 +30,7 @@ A high-performance, cross-platform data table for React Native, Expo, and React 
 | Expo | SDK 57 |
 | React Native | `>=0.86.0 <0.87` |
 | React | `>=19.2.3 <20` |
-| `@shopify/flash-list` | `>=2.0.0 <3` |
+| `@shopify/flash-list` | `>=2.2.1 <3` |
 | Node.js | `>=22.13.0` |
 | 平台 | iOS / Android / Web |
 

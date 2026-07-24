@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Declared an explicit `exports` map and `sideEffects: false` in `package.json` for
   stricter entry resolution and better web tree-shaking.
+- Raised the `@shopify/flash-list` peer requirement to `>=2.2.1`: the sticky-header
+  sentinel (`stickyHeaderIndices=[0]`) triggers a FlashList bug fixed in 2.2.1 where the
+  whole list disappears (blank table) after a fast fling, and 2.2.2 fixed a related
+  viewability out-of-bounds during fast scrolling ([Shopify/flash-list#2069](https://github.com/Shopify/flash-list/pull/2069)).
 
 ## 1.0.3 - 2026-07-16
 
