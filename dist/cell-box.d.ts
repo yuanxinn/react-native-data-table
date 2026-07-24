@@ -1,6 +1,11 @@
 import React from 'react';
 import { Animated, StyleProp, ViewStyle } from 'react-native';
 import type { ResolvedColumn } from './column-layout';
+/** React Native ViewStyle 不声明 CSS sticky；仅在 Web 分支的单一边界做类型适配。 */
+export declare const WEB_STICKY_STYLE: {
+    readonly position: "sticky";
+    readonly zIndex: 10;
+};
 /**
  * 单元格外框：负责定宽、对齐与固定列钉住。
  * contentStyle 为 composeCellStyle 合成的样式链；最终列宽最后追加，严禁被覆盖。

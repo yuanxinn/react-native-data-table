@@ -6,7 +6,10 @@ import { useDataTableTheme } from './theme';
 
 const IS_WEB = Platform.OS === 'web';
 const WEB_STICKY_OVERLAP = 1;
-const WEB_STICKY_POSITION = 'sticky' as unknown as ViewStyle['position'];
+
+/** React Native ViewStyle 不声明 CSS sticky；仅在 Web 分支的单一边界做类型适配。 */
+export const WEB_STICKY_STYLE = { position: 'sticky', zIndex: 10 } as const;
+const WEB_STICKY_VIEW_STYLE = WEB_STICKY_STYLE as unknown as ViewStyle;
 
 const alignItemsMap = {
   left: 'flex-start',
@@ -68,7 +71,7 @@ export function CellBox<T>({
       rc.fixed === 'left'
         ? { width: rc.width + WEB_STICKY_OVERLAP, marginRight: -WEB_STICKY_OVERLAP }
         : { width: rc.width + WEB_STICKY_OVERLAP, marginLeft: -WEB_STICKY_OVERLAP };
-    return <View style={[fixedBg, sized, overlap, styles.fixedWeb, stick]}>{children}</View>;
+    return <View style={[fixedBg, sized, overlap, WEB_STICKY_VIEW_STYLE, stick]}>{children}</View>;
   }
   // 位移补偿把 scrollX 夹在 [0, maxScroll]：内容变窄（字体调小重测）后，横向 ScrollView
   // 的可视偏移会被系统夹到新的 maxScroll，但驱动固定列的 scrollX 可能残留旧的更大偏移；
@@ -95,11 +98,6 @@ export function CellBox<T>({
 
 const styles = StyleSheet.create({
   fixedNative: {
-    zIndex: 10,
-  },
-  fixedWeb: {
-    // React Native Web supports CSS sticky positioning, but ViewStyle does not model it.
-    position: WEB_STICKY_POSITION,
     zIndex: 10,
   },
 });

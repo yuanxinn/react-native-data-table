@@ -34,11 +34,9 @@ const HEADER_SENTINEL = '__DATA_TABLE_HEADER__';
 type ListItem<T> = T | typeof HEADER_SENTINEL;
 
 /** ListHeader/Footer/Empty 兼容「组件类型」与「元素」两种传法 */
-function renderNode(
-  node?: React.ComponentType<any> | React.ReactElement | null,
-): React.ReactElement | null {
+function renderNode(node?: React.ComponentType | React.ReactElement | null): React.ReactElement | null {
   if (!node) return null;
-  return React.isValidElement(node) ? node : React.createElement(node as React.ComponentType<any>);
+  return React.isValidElement(node) ? node : React.createElement(node as React.ComponentType);
 }
 
 export function DataTable<T, D = unknown>({

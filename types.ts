@@ -173,9 +173,9 @@ export interface DataTableProps<T, D = unknown> {
   onEndReachedThreshold?: number;
 
   /** 页面级头部：只随表格纵向滚动，不随横向滚动 */
-  ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
+  ListHeaderComponent?: React.ComponentType | React.ReactElement | null;
   /** 页面级尾部（如底部 Loading）：只随表格纵向滚动，不随横向滚动 */
-  ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null;
+  ListFooterComponent?: React.ComponentType | React.ReactElement | null;
 
   // ---- 折叠展开行 / 异步主子表 ----
   /** 展开模式：'custom' 固定详情面板（默认）；'sub-table' 异步联动子表 */
@@ -226,5 +226,5 @@ export interface DataTableProps<T, D = unknown> {
   border?: boolean | DataTableBorder;
   /** 主题色注入（Partial，与 DEFAULT_DATA_TABLE_THEME 深合并，只覆盖传入的键）；不传用内置默认 */
   theme?: Partial<DataTableTheme>;
-  ListEmptyComponent?: React.ComponentType<any> | React.ReactElement | null;
+  ListEmptyComponent?: React.ComponentType | React.ReactElement | null;
 }

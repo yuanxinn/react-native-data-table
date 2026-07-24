@@ -194,7 +194,7 @@ export function HScroller({
 
   return (
     <Animated.ScrollView
-      ref={ref as React.Ref<any>}
+      ref={ref as React.Ref<React.ComponentRef<typeof Animated.ScrollView>>}
       horizontal
       bounces={false}
       nestedScrollEnabled
