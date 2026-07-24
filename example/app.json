@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "DataTable Example",
+    "slug": "data-table-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "android", "web"]
+  }
+}

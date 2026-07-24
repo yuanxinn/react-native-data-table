@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Declared an explicit `exports` map and `sideEffects: false` in `package.json` for
+  stricter entry resolution and better web tree-shaking.
+
+## 1.0.3 - 2026-07-16
+
 ### Added
 
 - Added `DataTableHandle.scrollToTop()` for resetting vertical position after filtering to a shorter data set.

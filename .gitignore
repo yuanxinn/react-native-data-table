@@ -1,0 +1,23 @@
+# 依赖
+node_modules/
+
+AGENTS.md
+.claude
+
+# 构建产物
+dist/
+*.tgz
+
+# 系统文件
+.DS_Store
+
+# Expo / RN
+.expo/
+.expo-shared/
+
+# 测试
+coverage/
+
+# 编辑器
+.idea/
+.vscode/
